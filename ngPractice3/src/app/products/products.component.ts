@@ -3,6 +3,7 @@ import { ProductService } from '../product.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { debounceTime, Subscription, switchMap } from 'rxjs';
+import { Product } from '../product';
 
 @Component({
   selector: 'app-products',
@@ -10,11 +11,11 @@ import { debounceTime, Subscription, switchMap } from 'rxjs';
   styleUrl: './products.component.scss',
 })
 export class ProductsComponent implements OnInit, OnDestroy {
-    arr$ = this.productService.getProducts()
+  arr$ = this.productService.products;
   errorMessage = '';
   keyword = new FormControl();
-  subscriptions: Subscription[] = []
-  
+  subscriptions: Subscription[] = [];
+
   constructor(private productService: ProductService) {}
 
   productsForm = new FormGroup({
@@ -22,7 +23,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
     description: new FormControl(),
     category: new FormControl(),
   });
-  
+
+  updateForm = new FormGroup({
+    title: new FormControl(),
+    description: new FormControl(),
+    category: new FormControl(),
+  });
 
   ngOnInit(): void {
     // Old Code
@@ -37,46 +43,61 @@ export class ProductsComponent implements OnInit, OnDestroy {
     //   },
     //   complete: () => console.log('Completed'),
     // });
-    this.productService.products.subscribe(data => {
-    console.log('BehaviorSubject emitted:', data);
-    console.log('Is it an array?', Array.isArray(data));
-    console.log('Length:', data?.length);
-    console.log('First item:', data?.[0]);
-  });
 
     // Loads initial products
-    this.subscriptions.push(this.productService.getProducts().subscribe())
+    this.subscriptions.push(this.productService.getProducts().subscribe());
 
     // search as user types (with 1 second delay)
-    this.subscriptions.push(this.keyword.valueChanges.pipe(debounceTime(1000), switchMap((input)=> {
-        return this.productService.searchProduct(input)
-    })).subscribe({
-      next: (res: any) => {
-        console.log(res)
-      },
-    }))
+    this.subscriptions.push(
+      this.keyword.valueChanges
+        .pipe(
+          debounceTime(1000),
+          switchMap((input) => {
+            return this.productService.searchProduct(input);
+          })
+        )
+        .subscribe({
+          next: (res: any) => {
+            console.log(res);
+          },
+        })
+    );
   }
 
   ngOnDestroy(): void {
-      this.subscriptions.forEach((sub:any)=> sub.unsubscribe())
+    this.subscriptions.forEach((sub: any) => sub.unsubscribe());
   }
-
-
 
   onSubmit(): void {
     if (this.productsForm.valid) {
       const newProduct: any = {
-        // id: (this.arr$.length ?? 0) + 2,
         title: this.productsForm.value.title ?? '',
         description: this.productsForm.value.description ?? '',
         category: this.productsForm.value.category ?? '',
       };
-      console.log(this.productService.products)
-    //   this.arr = [...(this.arr ?? []), newProduct];
-      this.productsForm.get('title')?.reset();
-      this.productsForm.get('description')?.reset();
-      this.productsForm.get('category')?.reset();
+      this.productService.addProduct(newProduct);
+      this.productsForm.reset();
     }
   }
-  
+
+  onDelete(id: number): void {
+    this.productService.deleteProduct(id);
+  }
+
+  onUpdate(id: number): void {
+    if (this.updateForm.valid) {
+      const updatedData: any = {
+        title: this.updateForm.value.title ?? '',
+        description: this.updateForm.value.description ?? '',
+        category: this.updateForm.value.category ?? '',
+      };
+      this.productService.updateProduct(id, updatedData);
+      this.updateForm.reset();
+    }
+  }
+
+  onBlur(): void {
+    this.keyword.setValue('');
+    this.productService.getProducts().subscribe(); 
+  }
 }
