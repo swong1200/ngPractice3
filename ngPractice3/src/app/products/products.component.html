@@ -15,8 +15,13 @@
     </select><br>
     <button (click)="onSubmit()">Submit</button>
 </form>
-<ul *ngFor="let product of arr">
-    <li>
+<br>
+<input type="text" [formControl]="keyword" placeholder="Search products...">
+
+
+
+<ul >
+    <li *ngFor="let product of arr$ | async">
         <p>{{ product.title }}</p>
         <p>{{ product.description }}</p>
         <p>{{ product.category | titlecase }}</p>
