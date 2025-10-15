@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ProductService } from '../product.service';
+import { ProductService } from '../../services/product.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { debounceTime, Subscription, switchMap } from 'rxjs';
-import { Product } from '../product';
+import { Product } from '../../product';
 
 @Component({
   selector: 'app-products',

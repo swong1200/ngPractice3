@@ -1,0 +1,27 @@
+<h2>User Registration</h2>
+<form [formGroup]="userRegForm">
+    <label>Username: </label>
+    <input type="text" formControlName="username" placeholder="Add username..."><br />
+    <p *ngIf="(userRegForm.get('username')?.hasError('required') && userRegForm.get('username')?.touched) || (userRegForm.get('username')?.hasError('minlength') && userRegForm.get('username')?.touched)" [ngStyle]="{'color': 'red'}">Username is required and must be at least 3 characters long</p>
+    <p *ngIf="userRegForm.get('username')?.hasError('usernameExist') && userRegForm.get('username')?.touched" [ngStyle]="{'color': 'red'}">Username is already taken</p>
+    <label>Email: </label>
+    <input type="text" formControlName="email" placeholder="Add email..."><br />
+    <p *ngIf="(userRegForm.get('email')?.hasError('required') && userRegForm.get('email')?.touched) || (userRegForm.get('email')?.hasError('email') && userRegForm.get('email')?.touched)" [ngStyle]="{'color': 'red'}">Please enter a valid email address</p>
+    <label>Password: </label>
+    <input type="password" formControlName="password" placeholder="Add password..."><br />
+    <p *ngIf="(userRegForm.get('password')?.hasError('required') && userRegForm.get('password')?.touched) || (userRegForm.get('password')?.hasError('minlength') && userRegForm.get('password')?.touched)" [ngStyle]="{'color': 'red'}">Password is required and must be at least 6 characters long</p>
+    <label>Confirm Password: </label>
+    <input type="password" formControlName="confirmpassword" placeholder="Re-enter password..."><br />
+    <p *ngIf="userRegForm.errors && userRegForm.get('confirmpassword')?.touched" [ngStyle]="{'color': 'red'}">Passwords do not match</p>
+    <!-- Optional phone number; only required if phone is selected from dropdown -->
+    <label>Phone Number: </label>
+    <input type="tel" formControlName="phone" placeholder="Add phone number..."><br />
+    <label>Preferred Contact Method: </label>
+    <select formControlName="contactmethod">
+        <option value="">-- Select --</option>
+        <option value="email">Email</option>
+        <option value="phone">Phone</option>
+    </select><br />
+    <p *ngIf="userRegForm.get('contactmethod')?.hasError('required') && userRegForm.get('contactmethod')?.touched" [ngStyle]="{'color': 'red'}">Please provide at least one contact method</p>
+    <button (click)="registerUser()">Submit</button>
+</form>
